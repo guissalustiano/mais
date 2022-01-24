@@ -83,9 +83,10 @@ def read_all_csv_zip_df(basepath):
     return pd.concat(dfs, axis=0, ignore_index=True)
 
 def load(df: pd.DataFrame):
-    year = df['ano'].unique()[0]
-    month = df['mes'].unique()[0]
-    path = Path('../output') / TABLE_NAME / f'ano={year}' / f'mes={month}.parquet'
+    year = df['ano'].unique()[0]; del df['ano']
+    month = df['mes'].unique()[0]; del df['mes']
+    uf = df['sigla_uf'].unique()[0]; del df['sigla_uf']
+    path = Path('../output') / TABLE_NAME / f'ano={year}' / f'mes={month} / f'sigla_uf={sigla_uf}' / 'data.parquet'
     path.parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(path)
 
@@ -105,7 +106,25 @@ def etl_all():
             continue
         etl_yearmount(path)
 
+def etl_each():
+    for datepath in host.list_newer(FTP_PATH):
+        if 'dicionario' in path:
+            continue
+        for path in paths
+            if not p.endswith('.zip'):
+                continue
+
+            logger.info(f'extract dataframe {path}')
+            filename, filecontent = host.read_csv_zip(p) 
+            df = pd.read_csv(filecontent, sep=";", encoding='cp1252', dtype=TABLE_TYPE)
+
+            logger.info(f'processing dataframe {path}')
+            df = process(df)
+
+            logger.info(f'load dataframe {path}')
+            load(df)
+
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
-    etl_all()
+    etl_each()
