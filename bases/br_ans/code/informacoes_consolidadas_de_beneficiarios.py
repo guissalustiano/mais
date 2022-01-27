@@ -86,7 +86,7 @@ def load(df: pd.DataFrame):
     year = df['ano'].unique()[0]; del df['ano']
     month = df['mes'].unique()[0]; del df['mes']
     uf = df['sigla_uf'].unique()[0]; del df['sigla_uf']
-    path = Path('../output') / TABLE_NAME / f'ano={year}' / f'mes={month} / f'sigla_uf={sigla_uf}' / 'data.parquet'
+    path = Path('../output') / TABLE_NAME / f'ano={year}' / f'mes={month}' / f'sigla_uf={uf}' / f'ben{year}{month}_{uf}.parquet'
     path.parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(path)
 
@@ -107,15 +107,15 @@ def etl_all():
         etl_yearmount(path)
 
 def etl_each():
-    for datepath in host.list_newer(FTP_PATH):
-        if 'dicionario' in path:
+    for paths in host.list_newer(FTP_PATH):
+        if 'dicionario' in paths:
             continue
-        for path in paths
-            if not p.endswith('.zip'):
+        for path in host.list_newer(paths):
+            if not path.endswith('.zip'):
                 continue
 
             logger.info(f'extract dataframe {path}')
-            filename, filecontent = host.read_csv_zip(p) 
+            filename, filecontent = host.read_csv_zip(path) 
             df = pd.read_csv(filecontent, sep=";", encoding='cp1252', dtype=TABLE_TYPE)
 
             logger.info(f'processing dataframe {path}')
